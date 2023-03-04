@@ -1,7 +1,10 @@
 import { Alchemy, Network } from 'alchemy-sdk';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import './App.css';
+import BlockData from './components/BlockData';
+import { SearchBlockBar } from './components/SearchBlockBar';
+import TransactionsTable from './components/TransactionsTable';
 
 // Refer to the README doc for more information about using API
 // keys in client-side code. You should never do this in production
@@ -21,6 +24,7 @@ const alchemy = new Alchemy(settings);
 
 function App() {
   const [blockNumber, setBlockNumber] = useState();
+  const [blockWithTxs, setBlockWithTxs] = useState({});
 
   useEffect(() => {
     async function getBlockNumber() {
@@ -28,9 +32,33 @@ function App() {
     }
 
     getBlockNumber();
-  });
 
-  return <div className="App">Block Number: {blockNumber}</div>;
+  }, [blockNumber]);
+
+  return (
+    <div className="App">
+      <h1 className="text-2xl font-bold">Last Block Number: {blockNumber}</h1>
+      <div>
+        <SearchBlockBar 
+          blockNo={blockNumber} 
+          alchemy={alchemy} 
+          blockWithTxs={blockWithTxs} 
+          setBlockWithTxs={setBlockWithTxs}
+        />
+        <br />
+        <div className="overflow-hidden bg-white shadow sm:rounded-lg">
+          {
+            blockWithTxs.number !== undefined && 
+            <BlockData blockWithTxs={blockWithTxs}/>
+          }
+          {
+            blockWithTxs.number !== undefined &&
+            <TransactionsTable blockWithTxs={blockWithTxs}/>
+          }
+        </div>
+      </div>
+    </div>
+  );  
 }
 
 export default App;
